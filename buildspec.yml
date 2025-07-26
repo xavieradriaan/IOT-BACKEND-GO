@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      golang: 1.22
+    commands:
+      - echo "Instalando dependencias..."
+      - go mod tidy
+  build:
+    commands:
+      - echo "Compilando aplicación Go..."
+      - go build -o app main.go
+  test:
+    commands:
+      - echo "Ejecutando tests unitarios..."
+      - go test ./...
+artifacts:
+  files:
+    - app
+    - .env
+    - appspec.yml
+    - scripts/**
+  discard-paths: no
