@@ -13,9 +13,7 @@ import (
 )
 
 func main() {
-	go mqtt.StartClient()
-
-	// Inicializa la base de datos SQLite
+	// Inicializa la base de datos SQLite primero
 	dbPath := "users.db"
 	dbExists := false
 	if _, err := os.Stat(dbPath); err == nil {
@@ -27,17 +25,23 @@ func main() {
 	}
 	defer db.Close()
 
-	// Crea la tabla y usuario admin si no existe
+	// Ejecuta el script de inicialización si la base de datos no existía
 	if !dbExists {
-		_, err = db.Exec(`CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT);`)
+		initSQL, err := os.ReadFile("init_users.sql")
 		if err != nil {
-			log.Fatalf("Error creando tabla: %v", err)
+			log.Fatalf("Error leyendo init_users.sql: %v", err)
 		}
-		_, err = db.Exec(`INSERT INTO users (username, password) VALUES (?, ?)`, "admin", "admin")
+		
+		// Ejecuta todo el script SQL
+		_, err = db.Exec(string(initSQL))
 		if err != nil {
-			log.Fatalf("Error insertando usuario admin: %v", err)
+			log.Fatalf("Error ejecutando init_users.sql: %v", err)
 		}
+		log.Println("Database initialized with users and attendance tables")
 	}
+
+	// Inicia el cliente MQTT con la conexión a la base de datos
+	go mqtt.StartClient(db)
 
 	r := gin.Default()
 	// Configuración CORS para permitir peticiones desde el frontend
@@ -70,6 +74,73 @@ func main() {
 
 	// Ruta pública /metrics para Prometheus
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	// API endpoints para datos de asistencia
+	r.GET("/api/attendance", func(c *gin.Context) {
+		var attendances []map[string]interface{}
+		
+		query := `
+			SELECT id, employee_name, event_type, event_date, timestamp, device_id, raw_payload 
+			FROM attendance 
+			ORDER BY timestamp DESC 
+			LIMIT 100
+		`
+		
+		rows, err := db.Query(query)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Error querying attendance data"})
+			return
+		}
+		defer rows.Close()
+		
+		for rows.Next() {
+			var id int
+			var employeeName, eventType, eventDate, timestamp, deviceId, rawPayload string
+			
+			err := rows.Scan(&id, &employeeName, &eventType, &eventDate, &timestamp, &deviceId, &rawPayload)
+			if err != nil {
+				continue
+			}
+			
+			attendances = append(attendances, map[string]interface{}{
+				"id":            id,
+				"employee_name": employeeName,
+				"event_type":    eventType,
+				"event_date":    eventDate,
+				"timestamp":     timestamp,
+				"device_id":     deviceId,
+				"raw_payload":   rawPayload,
+			})
+		}
+		
+		c.JSON(200, gin.H{
+			"data":  attendances,
+			"count": len(attendances),
+		})
+	})
+	
+	// Endpoint para estadísticas de asistencia
+	r.GET("/api/attendance/stats", func(c *gin.Context) {
+		var stats map[string]interface{} = make(map[string]interface{})
+		
+		// Total de registros
+		var totalCount int
+		db.QueryRow("SELECT COUNT(*) FROM attendance").Scan(&totalCount)
+		
+		// Registros de hoy
+		var todayCount int
+		db.QueryRow("SELECT COUNT(*) FROM attendance WHERE event_date = date('now')").Scan(&todayCount)
+		
+		// Empleados únicos
+		var uniqueEmployees int
+		db.QueryRow("SELECT COUNT(DISTINCT employee_name) FROM attendance").Scan(&uniqueEmployees)
+		
+		stats["total_records"] = totalCount
+		stats["today_records"] = todayCount
+		stats["unique_employees"] = uniqueEmployees
+		
+		c.JSON(200, stats)
+	})
 
 	// Ruta principal
 	r.GET("/", func(c *gin.Context) {

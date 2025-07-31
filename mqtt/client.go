@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -14,7 +15,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func StartClient() {
+var db *sql.DB
+
+func StartClient(database *sql.DB) {
+	db = database
 	_ = godotenv.Load()
 
 	host := os.Getenv("MQTT_HOST")
@@ -88,10 +92,33 @@ func onBiometric(client mqtt.Client, msg mqtt.Message) {
 			eventDate = getTodayFromTimeString("")
 		}
 	}
+	
+	// Save to Prometheus metrics (existing functionality)
 	metrics.RecordBiometricEvent(eventType, employee, eventDate)
+	
+	// Save to database (NEW functionality for persistence)
+	if db != nil {
+		err := saveBiometricEventToDB(employee, eventType, eventDate, payload)
+		if err != nil {
+			log.Printf("[ERROR] Failed to save biometric event to database: %v", err)
+		} else {
+			log.Printf("[DB] Saved biometric event: %s - %s - %s", employee, eventType, eventDate)
+		}
+	}
 }
 
 // Extrae la fecha de hoy en formato YYYY-MM-DD (puedes mejorar para extraer del payload si lo envías)
 func getTodayFromTimeString(_ string) string {
 	return time.Now().Format("2006-01-02")
+}
+
+// saveBiometricEventToDB saves the biometric event to the database for persistence
+func saveBiometricEventToDB(employee, eventType, eventDate, rawPayload string) error {
+	query := `
+		INSERT INTO attendance (employee_name, event_type, event_date, raw_payload, timestamp) 
+		VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+	`
+	
+	_, err := db.Exec(query, employee, eventType, eventDate, rawPayload)
+	return err
 }
