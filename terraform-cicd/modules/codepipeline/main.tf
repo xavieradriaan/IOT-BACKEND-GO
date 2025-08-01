@@ -51,7 +51,6 @@ resource "aws_codepipeline" "main" {
       category        = "Deploy"
       owner           = "AWS"
       provider        = "CodeDeploy"
-      region          = "us-east-1"
       input_artifacts = ["source_output"]
       version         = "1"
 
@@ -61,4 +60,4 @@ resource "aws_codepipeline" "main" {
       }
     }
   }
-} 
+}

@@ -35,9 +35,10 @@ resource "aws_s3_bucket_versioning" "codepipeline_artifacts" {
 
 # Modules
 module "iam_roles" {
-  source      = "./modules/iam"
-  project_name = var.project_name
-  bucket_arn   = aws_s3_bucket.codepipeline_artifacts.arn
+  source               = "./modules/iam"
+  project_name         = var.project_name
+  bucket_arn           = aws_s3_bucket.codepipeline_artifacts.arn
+  github_connection_arn = var.github_connection_arn
 }
 
 module "codebuild" {
