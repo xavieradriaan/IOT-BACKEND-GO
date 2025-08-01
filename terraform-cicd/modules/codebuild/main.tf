@@ -63,8 +63,7 @@ resource "aws_codebuild_project" "main" {
           "app",
           "appspec.yml",
           "scripts/**/*",
-          "init_users.sql",
-          ".env"
+          "init_users.sql"
         ]
       }
     })
