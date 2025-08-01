@@ -1,6 +1,6 @@
 module iot-backend
 
-go 1.20
+go 1.21
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.2
