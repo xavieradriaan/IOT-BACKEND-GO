@@ -36,6 +36,11 @@ resource "aws_codebuild_project" "main" {
     buildspec = yamlencode({
       version = "0.2"
       phases = {
+        install = {
+          runtime-versions = {
+            golang = "1.21"
+          }
+        }
         pre_build = {
           commands = [
             "echo Logging in to Amazon ECR...",
