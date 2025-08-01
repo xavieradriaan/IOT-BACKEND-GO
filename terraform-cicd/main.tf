@@ -14,7 +14,7 @@ provider "aws" {
 # Data sources
 data "aws_caller_identity" "current" {}
 
-# S3 bucket for artifacts
+# S3 bucket for artifacts  
 resource "aws_s3_bucket" "codepipeline_artifacts" {
   bucket        = "${var.project_name}-pipeline-artifacts-${random_string.bucket_suffix.result}"
   force_destroy = true
