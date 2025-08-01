@@ -1,14 +1,14 @@
 module iot-backend
 
-go 1.21
+go 1.20
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.2
-	github.com/gin-contrib/cors v1.7.6
-	github.com/gin-gonic/gin v1.10.1
-	github.com/joho/godotenv v1.5.1
-	github.com/mattn/go-sqlite3 v1.14.29
-	github.com/prometheus/client_golang v1.17.0
+	github.com/gin-contrib/cors v1.4.0
+	github.com/gin-gonic/gin v1.9.1
+	github.com/joho/godotenv v1.4.0
+	github.com/mattn/go-sqlite3 v1.14.17
+	github.com/prometheus/client_golang v1.16.0
 )
 
 require (
@@ -27,7 +27,6 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
