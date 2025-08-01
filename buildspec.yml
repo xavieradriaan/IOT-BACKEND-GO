@@ -18,7 +18,6 @@ phases:
 artifacts:
   files:
     - app
-    - .env
     - appspec.yml
     - scripts/**
   discard-paths: no
