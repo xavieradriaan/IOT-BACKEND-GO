@@ -6,15 +6,19 @@ files:
   - source: scripts/
     destination: /home/ubuntu/iot_backend_deploy/scripts/
 hooks:
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300
+      runas: ubuntu
+  AfterInstall:
+    - location: scripts/build_application.sh
+      timeout: 300
+      runas: ubuntu
   ApplicationStart:
     - location: scripts/start_application.sh
       timeout: 300
       runas: ubuntu
   ApplicationStop:
     - location: scripts/stop_application.sh
-      timeout: 300
-      runas: ubuntu
-  BeforeInstall:
-    - location: scripts/install_dependencies.sh
       timeout: 300
       runas: ubuntu
