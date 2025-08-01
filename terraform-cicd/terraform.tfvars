@@ -1,0 +1,8 @@
+aws_region            = "us-east-1"
+project_name          = "iot-backend"
+github_owner          = "xavieradriaan"
+github_repo           = "IOT-BACKEND-GO"
+github_branch         = "main"
+github_connection_arn = "arn:aws:codeconnections:us-east-1:571600846627:connection/7a2de85e-e481-4986-8090-d489173407c8"
+ec2_tag_key           = "Name"
+ec2_tag_value         = "iot-server"
