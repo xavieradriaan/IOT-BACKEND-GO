@@ -33,53 +33,7 @@ resource "aws_codebuild_project" "main" {
 
   source {
     type = "CODEPIPELINE"
-    buildspec = yamlencode({
-      version = "0.2"
-      phases = {
-        install = {
-          runtime-versions = {
-            golang = "1.21"
-          }
-        }
-        pre_build = {
-          commands = [
-            "echo Logging in to Amazon ECR...",
-            "aws --version",
-            "go version"
-          ]
-        }
-        build = {
-          commands = [
-            "echo Build started on `date`",
-            "go mod tidy",
-            "go build -o app main.go",
-            "echo Build completed on `date`",
-            "echo Verifying app binary was created:",
-            "ls -la app",
-            "file app"
-          ]
-        }
-        post_build = {
-          commands = [
-            "echo Post-build verification:",
-            "ls -la",
-            "echo Checking if app exists:",
-            "test -f app && echo 'app file exists' || echo 'ERROR: app file missing'"
-          ]
-        }
-      }
-      artifacts = {
-        files = [
-          "app",
-          "appspec.yml", 
-          "scripts/**/*",
-          "init_users.sql",
-          "main.go",
-          "go.mod",
-          "go.sum"
-        ]
-      }
-    })
+    buildspec = "buildspec.yml"
   }
 
   logs_config {
