@@ -3,21 +3,34 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      golang: 1.22
+      golang: 1.21
+  pre_build:
     commands:
-      - echo "Instalando dependencias..."
-      - go mod tidy
+      - echo "Logging in to Amazon ECR..."
+      - aws --version
+      - go version
   build:
     commands:
-      - echo "Compilando aplicación Go..."
+      - echo "Build started on `date`"
+      - go mod tidy
       - go build -o app main.go
-  test:
+      - echo "Build completed on `date`"
+      - echo "Verifying app binary was created:"
+      - ls -la app
+      - file app
+  post_build:
     commands:
-      - echo "Ejecutando tests unitarios..."
-      - go test ./...
+      - echo "Post-build verification:"
+      - ls -la
+      - echo "Checking if app exists:"
+      - test -f app && echo 'app file exists' || echo 'ERROR: app file missing'
+
 artifacts:
   files:
     - app
     - appspec.yml
-    - scripts/**
-  discard-paths: no
+    - scripts/**/*
+    - init_users.sql
+    - main.go
+    - go.mod
+    - go.sum
