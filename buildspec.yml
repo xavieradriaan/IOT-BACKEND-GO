@@ -23,7 +23,7 @@ phases:
       - echo "Post-build verification:"
       - ls -la
       - echo "Checking if app exists:"
-      - test -f app && echo 'app file exists' || echo 'ERROR: app file missing'
+      - test -f app && echo "app file exists" || echo "ERROR: app file missing"
 
 artifacts:
   files:
