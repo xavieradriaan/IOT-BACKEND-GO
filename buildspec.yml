@@ -4,31 +4,20 @@ phases:
   install:
     runtime-versions:
       golang: 1.21
-  pre_build:
     commands:
-      - echo "Starting pre-build phase"
-      - aws --version
-      - go version
+      - echo "Instalando dependencias..."
+      - go mod tidy
   build:
     commands:
-      - echo "Starting build phase"
-      - go mod tidy
+      - echo "Compilando aplicación Go..."
       - go build -o app main.go
-      - echo "Build completed"
-      - ls -la app
-      - file app
-  post_build:
+  test:
     commands:
-      - echo "Starting post-build phase"
-      - ls -la
-      - if [ -f app ]; then echo "app file exists"; else echo "ERROR: app file missing"; fi
-
+      - echo "Ejecutando tests unitarios..."
+      - go test ./...
 artifacts:
   files:
     - app
     - appspec.yml
-    - scripts/**/*
-    - init_users.sql
-    - main.go
-    - go.mod
-    - go.sum
+    - scripts/**
+  discard-paths: no
