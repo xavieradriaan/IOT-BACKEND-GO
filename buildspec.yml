@@ -15,6 +15,10 @@ phases:
     commands:
       - echo "Verificando archivo app..."
       - ls -la app
+      - echo "Listando todos los archivos para artifacts..."
+      - ls -la
+      - echo "Verificando archivos específicos de artifacts..."
+      - ls -la app appspec.yml scripts/ init_users.sql 2>/dev/null || echo "Algunos archivos de artifacts no encontrados"
       - echo "Ejecutando tests unitarios..."
       - go test ./...
 artifacts:
@@ -23,3 +27,4 @@ artifacts:
     - appspec.yml
     - scripts/**/*
     - init_users.sql
+  name: iot-backend-artifacts
