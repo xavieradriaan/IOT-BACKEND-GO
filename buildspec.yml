@@ -6,24 +6,22 @@ phases:
       golang: 1.21
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
+      - echo "Starting pre-build phase"
       - aws --version
       - go version
   build:
     commands:
-      - echo "Build started on `date`"
+      - echo "Starting build phase"
       - go mod tidy
       - go build -o app main.go
-      - echo "Build completed on `date`"
-      - echo "Verifying app binary was created:"
+      - echo "Build completed"
       - ls -la app
       - file app
   post_build:
     commands:
-      - echo "Post-build verification:"
+      - echo "Starting post-build phase"
       - ls -la
-      - echo "Checking if app exists:"
-      - test -f app && echo "app file exists" || echo "ERROR: app file missing"
+      - if [ -f app ]; then echo "app file exists"; else echo "ERROR: app file missing"; fi
 
 artifacts:
   files:
